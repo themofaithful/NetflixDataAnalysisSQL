@@ -19,13 +19,15 @@ Though the dataset for this project is sourced from the Kaggle dataset, but its 
 ## Business Problems and Solutions
 
 ###1.	Display the total Number of Movies vs TV Shows
+```sql
 	SELECT 
 		type,
 		COUNT(*) count_type
 	FROM netflix_titles
 	GROUP BY type
+```
 
-	--Objective: Determine the distribution of content types on Netflix.
+	**Objective:** Determine the distribution of content types on Netflix.
 
 
 ###2.	Count the Number of Content Items in Each Genre
