@@ -18,7 +18,7 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
  
 ## Business Problems and Solutions
 
-###1.	Display the total Number of Movies vs TV Shows
+1.	Display the total Number of Movies vs TV Shows
 ```sql
 	SELECT 
 		type,
@@ -29,7 +29,7 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
 **Objective:** Determine the distribution of content types on Netflix.
 
 
-###2.	Count the Number of Content Items in Each Genre
+2.	Count the Number of Content Items in Each Genre
 ```sql
 		SELECT 
 			Trim(Value) AS genre,  
@@ -38,9 +38,9 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
 		   CROSS APPLY string_split (listed_in, ',') 
 		GROUP BY Trim(Value);
 ```
---Objective: Count the number of content items in each genre.
+**Objective:** Count the number of content items in each genre.
 
-###3.	List All Movies Released in a 2020
+3.	List All Movies Released in 2020
 ```sql
 		SELECT * 
 		FROM netflix_titles
@@ -49,7 +49,7 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
 
 **Objective:** Retrieve all movies released in a specific year.
 
-###4.	Find the Top 5 Countries with the Most Content on Netflix
+4.	Find the Top 5 Countries with the Most Content on Netflix
 ```sql
 		SELECT Top(5) * 
 		FROM
@@ -66,7 +66,7 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
 
 
  
-###5.	Find Content Added in the Last 5 Years
+5.	Find Content Added in the Last 5 Years
 ```sql
 
 SELECT 
@@ -78,7 +78,7 @@ WHERE
 ```
 **Objective:** Retrieve content added to Netflix in the last 5 years.
 
-###6.	List All Movies that are Documentaries
+6.	List All Movies that are Documentaries
 ```sql
 
 ###Method 1
@@ -104,7 +104,7 @@ SELECT * FROM netflix_listed_in
 ```
 **Objective:** Retrieve all movies classified as documentaries.
  
- ###7.	Find All Content Without a Director
+7.	Find All Content Without a Director
 ```sql
  
 SELECT * FROM netflix_titles_filter
@@ -125,7 +125,7 @@ WHERE nd.director = 'NA'
 ```
 **Objective:** List content that does not have a director.
 
-###8.	Find How Many Movies Actor 'Salman Khan' Appeared in over the Last 10 Years
+8.	Find How Many Movies Actor 'Salman Khan' Appeared in over the Last 10 Years
 ```sql
 
 ###Method 1
@@ -148,7 +148,7 @@ WHERE nc.cast = 'Salman Khan' AND  ntf.release_year > YEAR(GetDate()) - 10
  ```
 **Objective:** Count the number of movies featuring 'Salman Khan' in the last 10 years
  
-###9.	Find the Top 10 Actors Who Have Appeared in the Highest Number of Movies Produced in India
+9.	Find the Top 10 Actors Who Have Appeared in the Highest Number of Movies Produced in India
 ```sql
 
 ###Method 1
@@ -187,7 +187,7 @@ Order BY COUNT(*) DESC
  ```
 **Objective:** Identify the top 10 actors with the most appearances in Indian-produced movies.
  
-###10.	Categorize the content based on the presence of the keywords 'kill' and 'violence' in the description field. Label content containing these keywords as 'Bad' and all other content as 'Good'. Count how many items fall into each category.
+10.	Categorize the content based on the presence of the keywords 'kill' and 'violence' in the description field. Label content containing these keywords as 'Bad' and all other content as 'Good'. Count how many items fall into each category.
 ```sql
  
 ###Method 1
@@ -246,9 +246,9 @@ GROUP BY
  ```
 **Objective:** Categorize content as 'Bad' if it contains 'kill' or 'violence' and 'Good' otherwise. Count the number of items in each category.
 
-###11.	Identify the Longest Movie
+11.	Identify the Longest Movie
 
-### Our strint_split has another parameter called the ORDINAL VALUE. When you use string_split, it will split the value of the column and return the first value as Ordinal 1, means the first value and not the second value. ORDINAL is like the index of the numbering. We CAST the Value because we need the answer as INTEGER.
+ Our strint_split has another parameter called the ORDINAL VALUE. When you use string_split, it will split the value of the column and return the first value as Ordinal 1, means the first value and not the second value. ORDINAL is like the index of the numbering. We CAST the Value because we need the answer as INTEGER.
 ```sql
  
 SELECT TOP 1
@@ -271,7 +271,7 @@ ORDER BY CAST(Trim(Value) AS INT) DESC
  ```
 **Objective:** Find the movie with the longest duration.
 
-###12.	Find All Movies/TV Shows by Director 'Rajiv Chilaka'
+12.	Find All Movies/TV Shows by Director 'Rajiv Chilaka'
 ```sql
 
 ###Method 1
@@ -300,7 +300,7 @@ WHERE ntf.Type = 'Movie' AND nd.Director = 'Rajiv Chilaka'
  ```
 **Objective:** List all content directed by 'Rajiv Chilaka'.
  
-###13.	List All TV Shows with More Than 5 Seasons
+13.	List All TV Shows with More Than 5 Seasons
 ```sql
  
 SELECT
@@ -323,7 +323,7 @@ Order By CAST(TRIM(Value) AS INT) DESC
 ```
 **Objective:** Identify TV shows with more than 5 seasons.
 
-###14.	List content items added after August 20, 2021
+14.	List content items added after August 20, 2021
 ```sql
  
 SELECT * FROM Netflix_Titles_filter
@@ -332,7 +332,7 @@ WHERE date_added > '2021-08-20'
  ```
 **Objective:**Display content items added after August 20, 2021
  
-###15.	List movies added on June 15, 2019
+15.	List movies added on June 15, 2019
 ```sql
 
 SELECT * FROM Netflix_Titles_filter
@@ -345,13 +345,13 @@ Convert it into a DATE type using TRY_CONVERT for safer querying.
 ```sql
 SELECT * FROM dbo.netflix_titles WHERE TRY_CONVERT(DATE, date_added, 107) = '2019-06-15';
 ```
-###15b. Show just the Count of movies added on June 15, 2019
+15b. Show just the Count of movies added on June 15, 2019
 ```sql
 SELECT COUNT(*) AS MoviesAddedCount
 	FROM dbo.netflix_titles
 	WHERE TRY_CONVERT(DATE, date_added, 107) = '2019-06-15';
  ```
-###15c. Count of titles by Type (Movies vs TV Shows) on June 15, 2019
+15c. Count of titles by Type (Movies vs TV Shows) on June 15, 2019
 ```sql
 SELECT 
     type,
@@ -362,7 +362,7 @@ GROUP BY type;
  ```
 **Objective:** Display movies added on June 15, 2019
  
-###16.	List content items added in 2021
+16.	List content items added in 2021
 ```sql
 
 ###Method 1
@@ -391,7 +391,7 @@ SELECT * from netflix_titles where Year(date_added) = 2021
 ``` 
 **Objective:** Display content items added in 2021
 
-###17.	List movies added in 2021
+17.	List movies added in 2021
 ```sql
 
 ###Method 1
@@ -424,7 +424,7 @@ Where type = 'Movie' AND Year(date_added) = 2021
 ```
 **Objective:**Display movies added in 2021
 
-###18.	Count the number of movies and TV series that each director has produced in different columns.
+18.	Count the number of movies and TV series that each director has produced in different columns.
 This version handles multiple directors in one row (using CROSS APPLY STRING_SPLIT), so if a title has "Director A, Director B", both get credited?
 ```sql
 
@@ -440,7 +440,7 @@ GROUP BY Trim(value), Type
 ```
 **Objective:** Count the number of movies and TV series that each director has produced in different columns.
 
-###18a. Count the number of movies and tv series that each director has produced in different columns, include a TotalCount column Movies + TV Shows) for each director
+18a. Count the number of movies and tv series that each director has produced in different columns, include a TotalCount column Movies + TV Shows) for each director
 ```sql
 SELECT 
     LTRIM(RTRIM(director_split.value)) AS director,
@@ -455,7 +455,7 @@ ORDER BY TotalCount DESC, director;
 ```
 **Objective:** Count the number of movies and tv series that each director has produced in different columns with a TotalCount column Movies + TV Shows) for each director
 
-###18b. Count the number of movies and tv series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including percentage split of Movies vs TV Shows for each director.
+18b. Count the number of movies and tv series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including percentage split of Movies vs TV Shows for each director.
 ```sql
 SELECT 
     LTRIM(RTRIM(director_split.value)) AS director,
@@ -472,7 +472,7 @@ ORDER BY TotalCount DESC, director;
 ```
 **Objective:** Count the number of movies and TV series that each director has produced in different columns, with a TotalCount column Movies + TV Shows) for each director
 
-###18c. Count the number of movies and TV series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including the percentage split of Movies vs TV Shows for each director. Show only the Top 5 directors ranked by their total number of titles
+18c. Count the number of movies and TV series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including the percentage split of Movies vs TV Shows for each director. Show only the Top 5 directors ranked by their total number of titles
 ```sql
 SELECT TOP 5
     LTRIM(RTRIM(director_split.value)) AS director,
@@ -490,7 +490,7 @@ ORDER BY TotalCount DESC, director;
 **Objective:** Count the number of movies and TV series that each director has produced in different columns, with a TotalCount column Movies + TV Shows) for each director
 
  
-###19.	Which country has the highest number of comedy movies?
+19.	Which country has the highest number of comedy movies?
 ###Method 1: This version handles without considering ties 
 ```sql
 SELECT TOP 1 Trim(value) All_Country, Count(*) COMEDIES
@@ -505,7 +505,7 @@ GROUP BY Trim(value)
 
 ORDER BY Count(*) DESC
  ```
-###Method 2: This version finds the country (or countries, in case of a tie) with the highest number of comedy movies:
+Method 2: This version finds the country (or countries, in case of a tie) with the highest number of comedy movies:
 ```sql
 SELECT country, ComedyMovieCount
 FROM (
@@ -523,8 +523,8 @@ WHERE rnk = 1;
  ```
 **Objective:** Which country has the highest number of comedy movies?
  
-###20.	For each year, which director has the maximum number of movies released
-###Method 1: This version handles without considering ties
+20.	For each year, which director has the maximum number of movies released
+Method 1: This version handles without considering ties
 ```sql
  
 SELECT 
@@ -561,7 +561,7 @@ ORDER BY release_year, director;
 
 
  
-###21.	What is the average running length of movies in each genre?
+21.	What is the average running length of movies in each genre?
 ```sql
  
 SELECT Type, Title, Trim(value) as AVGERAGELEN
@@ -574,7 +574,7 @@ WHERE type = 'Movie' and Ordinal = 1
 ```
 **Objective:** What is the average running length of movies in each genre?
 
-###22.	List directors who have directed both comedies and horror films.
+22.	List directors who have directed both comedies and horror films.
 ```sql
  
 SELECT DISTINCT Director, Trim(value) as ComedyAndHorror
@@ -591,7 +591,7 @@ HAVING Trim(value) <> 'Independent Movies' AND Trim(value) <> 'Sci-Fi & Fantasy'
 ``` 
 **Objective:** List directors who have directed both comedies and horror films.
 
-###23.	List the director's name and the number of horror and comedy films that he or she has directed.
+23.	List the director's name and the number of horror and comedy films that he or she has directed.
 ```sql
 
 SELECT Director, Count(*) MovieNumbers, Trim(value) as ComedyAndHorror
@@ -610,7 +610,7 @@ ORDER BY Count(*) DESC
 ```
 **Objective:** List the director's name and the number of horror and comedy films that he or she has directed.
 
-###24.	Find the Most Common Rating for Movies and TV Shows
+24.	Find the Most Common Rating for Movies and TV Shows
 ```sql
  
 SELECT Rating, COUNT(*) AS CountRating
@@ -634,7 +634,7 @@ ORDER BY COUNT(*) DESC
 ``` 
 **Objective:** Identify the most frequently occurring rating for each type of content.
 
-###25.	Find each year and the average number of content releases in India on Netflix, and return the top 5 years with the highest average content release!
+25.	Find each year and the average number of content releases in India on Netflix, and return the top 5 years with the highest average content release!
 ```sql
 
 SELECT TOP 5 release_year, COUNT(show_id) AS total_release, 
