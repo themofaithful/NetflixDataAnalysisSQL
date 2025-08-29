@@ -1,4 +1,4 @@
-![Netflix Logo] (https://github.com/themofaithful/NetflixDataAnalysisSQL/blob/main/NetflixLogo.png)
+![Netflix Logo](https://github.com/themofaithful/NetflixDataAnalysisSQL/blob/main/NetflixLogo.png)
  
 ## Overview
 
