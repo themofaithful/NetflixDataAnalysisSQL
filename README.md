@@ -62,16 +62,14 @@ Though the dataset for this project is sourced from the Kaggle dataset, it's upl
 		WHERE country IS NOT NULL
 		ORDER BY total_content DESC
 ```
-	**Objective:** Identify the top 5 countries with the highest number of content items.
+**Objective:** Identify the top 5 countries with the highest number of content items.
 
 
  
 5.	Find Content Added in the Last 5 Years
 ```sql
 
-SELECT 
-	* 
-FROM 
+SELECT * FROM 
 	netflix_titles_filter
 WHERE 
 	date_added >= DATEADD(Year, -5, GetDate())
@@ -79,170 +77,120 @@ WHERE
 **Objective:** Retrieve content added to Netflix in the last 5 years.
 
 6.	List All Movies that are Documentaries
+   Method 1
 ```sql
-
-###Method 1
 
 SELECT * FROM netflix_titles_filter
 
 WHERE Type = 'Movie' AND Listed_in LIKE '%Documentaries%'
-
-###Method 2
+```
+Method 2
+```sql
 
 SELECT ntf.*, nli.listed_in 
-
 FROM netflix_titles_filter ntf
-
 JOIN netflix_listed_in nli
-
 ON ntf.show_id = nli.show_id
-
-WHERE nli.Listed_in = 'Documentaries'
- 
-SELECT * FROM netflix_listed_in
+HERE nli.Listed_in = 'Documentaries'
+ SELECT * FROM netflix_listed_in
 
 ```
 **Objective:** Retrieve all movies classified as documentaries.
  
 7.	Find All Content Without a Director
+   Method 1
 ```sql
  
 SELECT * FROM netflix_titles_filter
 
 WHERE director = 'NA'
-
-###Method 2
+```
+Method 2
+```sql
 
 SELECT ntf.*, nd.director 
-
 FROM netflix_titles_filter ntf
-
 JOIN netflix_director nd
-
 ON ntf.show_id = nd.show_id
-
 WHERE nd.director = 'NA'
 ```
 **Objective:** List content that does not have a director.
 
 8.	Find How Many Movies Actor 'Salman Khan' Appeared in over the Last 10 Years
+    Method 1
 ```sql
-
-###Method 1
 
 SELECT * FROM netflix_titles_filter
 
 WHERE Type = 'Movie' AND cast LIKE '%Salman Khan%' AND  release_year > YEAR(GetDate()) - 10
+ ```
  
-###Method 2
-
+Method 2
+```sql
 SELECT ntf.*, nc.cast 
-
 FROM netflix_titles_filter ntf
-
 JOIN netflix_cast nc
-
 ON ntf.show_id = nc.show_id
-
 WHERE nc.cast = 'Salman Khan' AND  ntf.release_year > YEAR(GetDate()) - 10
  ```
 **Objective:** Count the number of movies featuring 'Salman Khan' in the last 10 years
  
 9.	Find the Top 10 Actors Who Have Appeared in the Highest Number of Movies Produced in India
+    Method 1
 ```sql
 
-###Method 1
-
 SELECT TOP (10)
-
-	Trim(Value) AS Actor,
-
-	COUNT(*) HighestNumber
-
+Trim(Value) AS Actor,
+COUNT(*) HighestNumber
 FROM netflix_titles_filter
-
 CROSS APPLY STRING_SPLIT(cast,',')
-
 WHERE country LIKE '%India%' AND type = 'Movie'
-
 GROUP BY Trim(Value)
-
 Order BY COUNT(*) DESC
- 
-###Method 2, Using JOIN
-
+``` 
+Method 2: Using JOIN
+```sql
 SELECT TOP (10) trim(cast) Actor, Count(*) HighestNumber
-
 FROM netflix_titles_filter ntf
-
 JOIN netflix_cast nc
-
 ON ntf.show_id = nc.show_id
-
 WHERE ntf.country = 'India' AND ntf.type = 'Movie'
-
 GROUP BY trim(cast)
-
 Order BY COUNT(*) DESC
  ```
 **Objective:** Identify the top 10 actors with the most appearances in Indian-produced movies.
  
 10.	Categorize the content based on the presence of the keywords 'kill' and 'violence' in the description field. Label content containing these keywords as 'Bad' and all other content as 'Good'. Count how many items fall into each category.
+    Method 1
 ```sql
- 
-###Method 1
 
 SELECT Category, Count(*) CategoryCounts
-
 FROM
-
-	(
-
-	SELECT description,
-
-		CASE	
-
-			WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
-
-		ELSE 
-
-			'Good'
-
-		END AS Category
-
+(
+   SELECT description,
+   CASE
+   WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
+   ELSE
+   'Good'
+    END AS Category
 	FROM Netflix_Titles_Filter
-
-	)AS CategorizedContents
-
-GROUP BY Category
- 
- 
- 
-###Method 2
-
+	) AS CategorizedContents
+      GROUP BY Category
+ ```
+ Method 2
+ ```sql
 SELECT 
-
-	CASE
-
-		WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
-
-		ELSE 'Good'
-
-	END as Category,
-
-	Count(*) as TotalCount
-
+CASE
+WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
+ELSE 'Good'
+END as Category,
+Count(*) as TotalCount
 FROM Netflix_Titles_Filter
-
 GROUP BY 
-
-	CASE
-
-		WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
-
-		ELSE 'Good'
-
-	END;
+CASE
+WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad'
+ELSE 'Good'
+END;
  ```
 **Objective:** Categorize content as 'Bad' if it contains 'kill' or 'violence' and 'Good' otherwise. Count the number of items in each category.
 
@@ -252,42 +200,33 @@ GROUP BY
 ```sql
  
 SELECT TOP 1
-
-	Type,
-
-	Title,
-
-	Trim(Value) as TotalMunite,
-
-	Duration
-
+Type,
+Title,
+Trim(Value) as TotalMunite,
+Duration
 FROM Netflix_Titles_Filter
-
 CROSS APPLY string_split(duration, ' ', 1)
-
 WHERE type = 'Movie' AND ORDINAL = 1
-
 ORDER BY CAST(Trim(Value) AS INT) DESC
  ```
 **Objective:** Find the movie with the longest duration.
 
 12.	Find All Movies/TV Shows by Director 'Rajiv Chilaka'
+    Method 1
 ```sql
-
-###Method 1
 
 SELECT * FROM netflix_titles_filter
 
 WHERE Type IN ('Movie', 'TV Show') AND Director LIKE '%Rajiv Chilaka%'
- 
- ###Method 2
-
+ ```
+Method 2
+```sql
 SELECT * FROM netflix_titles_filter
 
 WHERE Director LIKE '%Rajiv Chilaka%'
-
-###Method 3
-
+```
+Method 3
+```sql
 SELECT *, ntf.type, nd.director 
 
 FROM netflix_titles_filter ntf
@@ -527,7 +466,7 @@ WHERE rnk = 1;
 Method 1: This version handles without considering ties
 ```sql
  
-SELECT 
+SELECT
         nt.release_year,
         TRIM(d.value) AS director,
         COUNT(*) AS MovieCount 
@@ -538,7 +477,7 @@ SELECT
       AND nt.release_year IS NOT NULL
     GROUP BY nt.release_year, TRIM(d.value)
 ```
- ###Method 2:
+Method 2:
 ```sql
 SELECT release_year, director, MovieCount
 FROM (
@@ -559,20 +498,17 @@ ORDER BY release_year, director;
 ```
 **Objective:** For each year, which director has the maximum number of movies released
 
-
  
 21.	What is the average running length of movies in each genre?
 ```sql
  
 SELECT Type, Title, Trim(value) as AVGERAGELEN
-
 FROM netflix_titles_filter
-
 CROSS APPLY string_split(Duration, ' ', 1)
-
 WHERE type = 'Movie' and Ordinal = 1
 ```
 **Objective:** What is the average running length of movies in each genre?
+
 
 22.	List directors who have directed both comedies and horror films.
 ```sql
@@ -595,17 +531,11 @@ HAVING Trim(value) <> 'Independent Movies' AND Trim(value) <> 'Sci-Fi & Fantasy'
 ```sql
 
 SELECT Director, Count(*) MovieNumbers, Trim(value) as ComedyAndHorror
-
 FROM Netflix_Titles_Filter
-
 CROSS APPLY string_split(Listed_in, ',')
-
 WHERE Listed_in LIKE '%Comedies%' AND Listed_in LIKE '%Horror%' AND Director <> 'NA'
-
 GROUP BY Trim(value), Director
-
 HAVING Trim(value) <> 'Independent Movies' AND Trim(value) <> 'Sci-Fi & Fantasy' AND Trim(value) <> 'International Movies' AND Trim(value) <> 'Action & Adventure' AND Trim(value) <> 'Cult Movies'
-
 ORDER BY Count(*) DESC
 ```
 **Objective:** List the director's name and the number of horror and comedy films that he or she has directed.
@@ -614,21 +544,13 @@ ORDER BY Count(*) DESC
 ```sql
  
 SELECT Rating, COUNT(*) AS CountRating
-
 FROM (
-
     SELECT Rating
-
     FROM Netflix_Titles_filter
-
     UNION ALL 
-
     SELECT Rating
-
     FROM Netflix_Titles_filter
-
 ) AS combined
-
 GROUP BY Rating
 ORDER BY COUNT(*) DESC
 ``` 
@@ -638,27 +560,16 @@ ORDER BY COUNT(*) DESC
 ```sql
 
 SELECT TOP 5 release_year, COUNT(show_id) AS total_release, 
-
     ROUND(COUNT(show_id) * 1.0 / (SELECT COUNT(show_id) 
-
 	FROM Netflix_Titles_filter 
-
 	WHERE country = 'India') * 100, 2) AS avg_release
-
 FROM 
-
     Netflix_Titles_filter
-
-WHERE 
-
+WHERE
     country = 'India'
-
 GROUP BY 
-
     release_year
-
 ORDER BY 
-
     avg_release DESC
  ```
 **Objective:** Calculate and rank years by the average number of content releases by India.
