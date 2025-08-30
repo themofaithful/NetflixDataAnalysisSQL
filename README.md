@@ -15,7 +15,9 @@ This project requires a thorough examination of Netflix's movie and TV show data
  
 Though the dataset for this project is sourced from the Kaggle dataset, it's uploaded here: Netflix_titles.csv
  
- 
+## Processes and Stages
+Step 1: Download the dataset from: [Netflix Dataset](https://greaterheight.tech/NetflixContent.csv)
+
 ## Business Problems and Solutions
 
 1.	Display the total Number of Movies vs TV Shows
@@ -280,7 +282,7 @@ Order By CAST(TRIM(Value) AS INT) DESC
 SELECT * FROM Netflix_Titles_filter
 WHERE date_added > '2021-08-20'
  ```
-**Objective:**Display content items added after August 20, 2021
+**Objective:** Display content items added after August 20, 2021
  
 15.	List movies added on June 15, 2019
 ```sql
@@ -289,8 +291,9 @@ SELECT * FROM Netflix_Titles_filter
 WHERE type = 'Movie' AND date_added = '2019-06-15'
  ```
 **Note:** If the date_added column in your table is stored as text (e.g., "June 15, 2019"), we can either:
-Compare it directly as a string, or
-Convert it into a DATE type using TRY_CONVERT for safer querying.
+
+- Compare it directly as a string, or
+- Convert it into a DATE type using TRY_CONVERT for safer querying.
 
 ```sql
 SELECT * FROM dbo.netflix_titles WHERE TRY_CONVERT(DATE, date_added, 107) = '2019-06-15';
@@ -357,14 +360,14 @@ Method 2
 SELECT * FROM Netflix_Titles_filter
 WHERE type = 'Movie' AND  date_added BETWEEN '2021-01-01' AND '2021-12-31'
 ```
-###Method 3
+Method 3
 ```sql
 
 SELECT *  FROM Netflix_Titles_filter
 WHERE type = 'Movie' AND date_added LIKE '%2021%'
 
 ```
-###Method 4
+Method 4
 
 ```sql
 
@@ -372,7 +375,7 @@ SELECT *  FROM Netflix_Titles_filter
 Where type = 'Movie' AND Year(date_added) = 2021
 
 ```
-**Objective:**Display movies added in 2021
+**Objective:** Display movies added in 2021
 
 18.	Count the number of movies and TV series that each director has produced in different columns.
 This version handles multiple directors in one row (using CROSS APPLY STRING_SPLIT), so if a title has "Director A, Director B", both get credited?
@@ -399,9 +402,9 @@ WHERE nt.director IS NOT NULL
 GROUP BY LTRIM(RTRIM(director_split.value))
 ORDER BY TotalCount DESC, director;
 ```
-**Objective:** Count the number of movies and tv series that each director has produced in different columns with a TotalCount column Movies + TV Shows) for each director
+**Objective:** Count the number of movies and TV series that each director has produced in different columns with a TotalCount column Movies + TV Shows) for each director
 
-18b. Count the number of movies and tv series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including percentage split of Movies vs TV Shows for each director.
+18b. Count the number of movies and TV series that each director has produced in different columns, with TotalCount column (Movies + TV Shows) for each director, including percentage split of Movies vs TV Shows for each director.
 ```sql
 SELECT 
     LTRIM(RTRIM(director_split.value)) AS director,
