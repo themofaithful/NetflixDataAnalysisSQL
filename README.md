@@ -14,7 +14,7 @@ This project requires a thorough examination of Netflix's movie and TV show data
 - Analyse and categorise information using precise criteria and keywords.
  
 ## Dataset
-The dataset for this project is sourced from the Kaggle dataset; however, you can send an email to Themofaithful@gmail.com to request it.
+The dataset for this project is sourced from the [Kaggle](https://www.kaggle.com/datasets?fileType=csv) dataset; however, you can send an email to Themofaithful@gmail.com to request it.
 
 ## Processes and Stages of Dataset Importation
 
