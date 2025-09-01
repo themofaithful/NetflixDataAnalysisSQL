@@ -61,6 +61,31 @@ WITH (
 );
 Go
 ```
+Step 5: We now run the SQL code below to identify the maximum column size for the content in each column of the netflix_titles table that has been imported. Run the SQL statements below.
+USE Movies
+```sql
+ SELECT
+	MAX(LEN(showid)) showid,
+	MAX(LEN(type)) type,
+	MAX(LEN(title)) title,
+	MAX(LEN(director))director,
+	MAX(LEN(cast)) cast,
+	MAX(LEN(country))country,
+	MAX(LEN(dateadded)) dateadded,
+	MAX(LEN(releaseyear)) releaseyear,
+	MAX(LEN(rating))rating,
+	MAX(LEN(duration))duration,
+	MAX(LEN(listedin)) listedin,
+	MAX(LEN(description))description
+FROM 
+	netflixContent
+```
+**Objective:** To identify the maximum column size in each of the columns of the netflixContent table so we can remodify the datatype sizes of the column. This is for performance optimization.
+
+**Result:** When you execute the code above, the result gives the maximum column size of each column in the netflixContent. Maximum Column Size
+<img width="671" height="91" alt="image" src="https://github.com/user-attachments/assets/4d9029a2-4cd3-4e37-be61-c3f50f813f99" />
+
+
 Step 5: Execute the SQL code below. Make a backup copy of NetflixContent
 ```sql
 --Before you do anything on the imported data, we make a backup copy of NetflixContent
