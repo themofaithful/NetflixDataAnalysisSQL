@@ -18,9 +18,11 @@ The dataset for this project is sourced from the [Kaggle](https://www.kaggle.com
 
 ## Processes and Stages of Dataset Importation
 
-Step 1: Download the dataset from: [Netflix Dataset](https://greaterheight.tech/NetflixContent.csv)
+Step 1: Download the dataset after requesting it in the email.
 
-Step 2: Open the NetflixContent.csv file and explore it to determine the column names.
+Step 2: Open the file and explore it to determine the column names.
+
+**Note:** The file headings should align with the column headings in your SQL Server after executing the code in the next step.
 
 Step 3: Execute the SQL code below:
 ```sql
@@ -30,7 +32,7 @@ USE MoviesDB
 GO
 CREATE TABLE NetflixContent
 (
-	ShowID nvarchar(MAX) NOT NULL,
+	Showid nvarchar(MAX) NOT NULL,
 	Type nvarchar(MAX) NULL,
 	Title nvarchar(MAX) NULL,
 	Director nvarchar(MAX) NULL,
@@ -62,6 +64,18 @@ WITH (
 );
 Go
 ```
+**Note:** You should save the downloaded dataset to a folder you can easily access on your system. Copy that file address and paste it into the code.
+
+**Result:** The table netflixContent will be populated with all the records in the netflix_titles.csv file. 
+To confirm this, run the SELECT statement below.
+```sql
+SELECT
+   *
+FROM
+   netflixContent
+```
+**Result:** The result is 8807 records.
+
 Step 5: We now run the SQL code below to identify the maximum column size for the content in each column of the netflix_titles table that has been imported. Run the SQL statements below.
 USE Movies
 ```sql
@@ -85,7 +99,8 @@ FROM
 
 **Result:** When you execute the code above, the result gives the maximum column size of each column in the netflixContent. 
 
-<img width="671" height="91" alt="image" src="https://github.com/user-attachments/assets/4d9029a2-4cd3-4e37-be61-c3f50f813f99" />
+<img width="748" height="67" alt="Screenshot 2025-09-01 180748" src="https://github.com/user-attachments/assets/ffc08812-ae99-4246-8380-5bb1f0516286" />
+
 
 Step 6: Using the results above, we now alter the table netflixContent and change the data sizes of the columns.
 ```sql
@@ -100,7 +115,7 @@ ALTER TABLE NetflixContent ALTER COLUMN releaseyear smallint NULL
 ALTER TABLE NetflixContent ALTER COLUMN rating nvarchar(8) NULL
 ALTER TABLE NetflixContent ALTER COLUMN duration nvarchar(10) NULL
 ALTER TABLE NetflixContent ALTER COLUMN listedin nvarchar(79) NULL
-ALTER TABLE NetflixContent ALTER COLUMN description nvarchar(250) NULL
+ALTER TABLE NetflixContent ALTER COLUMN description nvarchar(248) NULL
 ```
 
 
@@ -118,7 +133,7 @@ FROM NetflixContent
 Step 2: Create a Primary Key for the Showid column in the table
 ```sql
 ALTER TABLE 
-	netflixStaging
+	NetflixStaging
 ADD CONSTRAINT pk_ntc
 PRIMARY KEY (show_id)
 ```
@@ -126,65 +141,19 @@ PRIMARY KEY (show_id)
 
 Step 3: Check for and replace all Null values in the columns of the table netflixStaging with 'NA' (Not Available)
 ```sql
-UPDATE 
-	netflixStaging
+UPDATE NetflixStaging
 SET 
-	type='NA' 
-WHERE type Is Null
+    type       = CASE WHEN type IS NULL THEN 'NA' ELSE type END,
+    title      = CASE WHEN title IS NULL THEN 'NA' ELSE title END,
+    director   = CASE WHEN director IS NULL THEN 'NA' ELSE director END,
+    cast       = CASE WHEN cast IS NULL THEN 'NA' ELSE cast END,
+    country    = CASE WHEN country IS NULL THEN 'NA' ELSE country END,
+    dateadded  = CASE WHEN dateadded IS NULL THEN 'NA' ELSE dateadded END,
+    rating     = CASE WHEN rating IS NULL THEN 'NA' ELSE rating END,
+    duration   = CASE WHEN duration IS NULL THEN 'NA' ELSE duration END,
+    listedin   = CASE WHEN listedin IS NULL THEN 'NA' ELSE listedin END,
+    description= CASE WHEN description IS NULL THEN 'NA' ELSE description END;
 
-UPDATE 
-	netflixStaging
-SET 
-	title='NA' 
-WHERE title Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	director='NA' 
-WHERE director Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	cast='NA' 
-WHERE cast Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	country='NA' 
-WHERE country Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	dateadded='NA' 
-WHERE dateadded Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	rating = 'NA' 
-WHERE rating Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	duration = 'NA' 
-WHERE duration Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	listedin = 'NA' 
-WHERE listedin Is Null
-
-UPDATE 
-	netflixStaging
-SET 
-	description = 'NA' 
-WHERE description Is Null
 ```
 **Objective:** To make the table easier to view by identifying and replacing Null values with 'NA'
 
@@ -195,7 +164,7 @@ SELECT
     Show_id,
 	COUNT(*) duplicate_count
 FROM 
-    netflixStaging
+  NetflixStaging
 GROUP BY 
 		show_id
 HAVING COUNT(*)>1
@@ -219,7 +188,7 @@ WHERE title in
 	HAVING COUNT(*) > 1
 )
 ```
-**Objective:** Identifying the duplicates and moving them into a new table
+**Objective:** Identifying the duplicates using title.
 
 Method 2: Delete duplicates. To use this method, we have to create a new column named ID, make it a PRIMARY KEY of datatype int, and let it auto increase by 1. 
 For this project, this is the recommended method.
@@ -242,6 +211,41 @@ DELETE FROM netflixStaging WHERE ID NOT IN
 	GROUP BY Title, Type
 )
 ```
+Method 3: Using the DISTINCT function to select a unique combination of title and type into a table called DistinctNetflixStagingRecs.
+```sql
+SELECT DISTINCT 
+	title, 
+	type 
+INTO DistinctNetflixStagingRecs
+FROM 
+	netflixStaging
+```
+**Objective:** Identifying and selecting distinct title and type from table netflix_titlesCopy and copying them into a table called DistinctNetflixRecs. 
+The problem with this method is that only two columns are in the new table.
+
+**Note:**
+```sql
+SELECT
+	COUNT(*)
+FROM
+	netflixStaging
+```
+**Result:** We see that the count is 8801, which implies 6 records with the same title and type have been deleted.
+
+Converting the dateadded column to Date datatype. We need to do this to answer some of the questions easily when we start the analysis.
+```sql
+ALTER TABLE netflixStaging 
+ADD temp_dateadded DATE NULL 
+
+UPDATE netflixStaging 
+SET temp_dateadded = TRY_CAST(dateadded AS DATE);
+
+ALTER TABLE netflixStaging 
+DROP COLUMN dateadded;
+
+EXEC sp_rename 'netflixStaging.temp_dateadded', 'dateadded', 'COLUMN';
+```
+**Result:** We used the process above because the dateadded column contains existing values
 
 Step 6: Before we start analysing the content of the table, we need to normalize it. We can see from the cast, listedin, directors, and country columns that several cells contain multiple values separated by commas. Below is a process of generating tables out of the columns since the values in the named columns have the same unique ID, using the relational operator CROSS APPLY and the function String_split()
 ```sql
