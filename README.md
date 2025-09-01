@@ -15,7 +15,7 @@ This project requires a thorough examination of Netflix's movie and TV show data
  
 Though the dataset for this project is sourced from the Kaggle dataset, it's uploaded here: [Netflix_titles.csv](https://greaterheight.tech/NetflixContents.csv)
  
-## Processes and Stages
+## Processes and Stages of Dataset Importation
 
 Step 1: Download the dataset from: [Netflix Dataset](https://greaterheight.tech/NetflixContent.csv)
 
@@ -82,17 +82,238 @@ FROM
 ```
 **Objective:** To identify the maximum column size in each of the columns of the netflixContent table so we can remodify the datatype sizes of the column. This is for performance optimization.
 
-**Result:** When you execute the code above, the result gives the maximum column size of each column in the netflixContent. Maximum Column Size
+**Result:** When you execute the code above, the result gives the maximum column size of each column in the netflixContent. 
+
 <img width="671" height="91" alt="image" src="https://github.com/user-attachments/assets/4d9029a2-4cd3-4e37-be61-c3f50f813f99" />
 
+Step 6: Using the results above, we now alter the table netflixContent and change the data sizes of the columns.
+```sql
+ALTER TABLE NetflixContent ALTER COLUMN showid nvarchar(5) NOT NULL
+ALTER TABLE NetflixContent ALTER COLUMN type nvarchar(7) NULL
+ALTER TABLE NetflixContent ALTER COLUMN title nvarchar(104) NULL
+ALTER TABLE NetflixContent ALTER COLUMN director nvarchar(208) NULL
+ALTER TABLE NetflixContent ALTER COLUMN cast nvarchar(771) NULL
+ALTER TABLE NetflixContent ALTER COLUMN country nvarchar(123) NULL
+ALTER TABLE NetflixContent ALTER COLUMN dateadded nvarchar(19) NULL
+ALTER TABLE NetflixContent ALTER COLUMN releaseyear smallint NULL
+ALTER TABLE NetflixContent ALTER COLUMN rating nvarchar(8) NULL
+ALTER TABLE NetflixContent ALTER COLUMN duration nvarchar(10) NULL
+ALTER TABLE NetflixContent ALTER COLUMN listedin nvarchar(79) NULL
+ALTER TABLE NetflixContent ALTER COLUMN description nvarchar(250) NULL
+```
 
-Step 5: Execute the SQL code below. Make a backup copy of NetflixContent
+
+## Processes and Stages of Dataset Cleaning
+
+Step 1: Execute the SQL code below. Make a backup copy of NetflixContent
 ```sql
 --Before you do anything on the imported data, we make a backup copy of NetflixContent
 
 SELECT * INTO NetflixContent_stagging
 FROM NetflixContent
 ```
+**Objective:** To avoid fatal errors like mistakenly deleting the dataset. It is the professional best practice to first make a duplicate copy of the dataset to be analysed.
+
+Step 2: Create a Primary Key for the Showid column in the table
+```sql
+ALTER TABLE 
+	netflixStaging
+ADD CONSTRAINT pk_ntc
+PRIMARY KEY (show_id)
+```
+**Objective:** To begin to find duplicates, we have to create a primary key for the table. We chose the showid column because it has no Null values.
+
+Step 3: Check for and replace all Null values in the columns of the table netflixStaging with 'NA' (Not Available)
+```sql
+UPDATE 
+	netflixStaging
+SET 
+	type='NA' 
+WHERE type Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	title='NA' 
+WHERE title Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	director='NA' 
+WHERE director Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	cast='NA' 
+WHERE cast Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	country='NA' 
+WHERE country Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	dateadded='NA' 
+WHERE dateadded Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	rating = 'NA' 
+WHERE rating Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	duration = 'NA' 
+WHERE duration Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	listedin = 'NA' 
+WHERE listedin Is Null
+
+UPDATE 
+	netflixStaging
+SET 
+	description = 'NA' 
+WHERE description Is Null
+```
+**Objective:** To make the table easier to view by identifying and replacing Null values with 'NA'
+
+Step 4: We begin to run several SQL queries to check for duplicate records
+Checking for duplicate show_id
+```sql
+SELECT 
+    Show_id,
+	COUNT(*) duplicate_count
+FROM 
+    netflixStaging
+GROUP BY 
+		show_id
+HAVING COUNT(*)>1
+```
+
+Step 5: After the duplicates have been identified, the next task depends on the requirements of the client. Some clients may want them stored in another table, and some may want them deleted. For this project, we are deleting the duplicates.
+
+Method 1: Creating a table to store the duplicate records.
+```sql
+SELECT * INTO DeleledNetflixStagingRecs
+FROM
+	netflixStaging
+WHERE title in 
+(
+	SELECT
+		title
+	FROM
+		netflixStaging  
+	GROUP BY
+		title, type
+	HAVING COUNT(*) > 1
+)
+```
+**Objective:** Identifying the duplicates and moving them into a new table
+
+Method 2: Delete duplicates. To use this method, we have to create a new column named ID, make it a PRIMARY KEY of datatype int, and let it auto increase by 1. 
+For this project, this is the recommended method.
+```sql
+ALTER TABLE netflixStaging
+DROP CONSTRAINT [pk_ntc]
+
+ALTER TABLE netflixStaging
+ADD ID INT IDENTITY(1,1) NOT NULL;
+
+ALTER TABLE netflixStaging
+ADD CONSTRAINT PK_netflixStaging_ID PRIMARY KEY (ID)
+```
+**Result:** We removed the showid PRIMARY KEY by dropping the constraint name associated with it. We then created a column ID with a datatype of INT, that autoincreases by 1 starting from 1, and does not accept null values.
+Finally, we made the column the new PRIMARY KEY of the table.
+```sql
+DELETE FROM netflixStaging WHERE ID NOT IN
+(
+	SELECT MIN(ID) FROM netflixStaging
+	GROUP BY Title, Type
+)
+```
+
+Step 6: Before we start analysing the content of the table, we need to normalize it. We can see from the cast, listedin, directors, and country columns that several cells contain multiple values separated by commas. Below is a process of generating tables out of the columns since the values in the named columns have the same unique ID, using the relational operator CROSS APPLY and the function String_split()
+```sql
+SELECT 
+  	showid, 
+	TRIM(value) as cast
+INTO
+	netflixStaging_Cast
+FROM
+	netflixStaging
+CROSS APPLY string_split(cast,',')
+ 
+SELECT 
+	showid, 
+	TRIM(value) as listedin
+INTO
+	netflixStaging_ListedIn
+FROM
+	netflixStaging
+CROSS APPLY string_split(listedin,',')
+ 
+SELECT 
+	showid, 
+	TRIM(value) as country
+INTO
+	netflixStaging_Country
+FROM
+	netflixStaging
+CROSS APPLY string_split(country,',')
+
+SELECT 
+	showid, 
+	TRIM(value) as director
+INTO
+	netflixStaging_Director 
+FROM
+	netflixStaging
+CROSS APPLY string_split(director,',')
+```
+**Result:** Tables netflixStaging_Director, netflixStaging_Country, netflixStaging_ListedIn and netflixStaging_Cast are generated.
+
+
+Step 7: We have normalized the table, and the column showid is common to all the tables netflixStaging_Director, netflixStaging_Country, netflixStaging_ListedIn, netflixStaging_Cast, and netflixStaging. So, we do not need the columns listedin, directors, cast, and country in NetflixStaging.
+
+Method 1: We use the code below if we want to select certain columns from a table into a temporary table and then drop the original table. Then we later rename the temporary table using the name of the original table. 
+Note: We first make a copy of netflixStaging named netflixStagingCopy. We will call NetflixStagingCopy the unnormalized table.
+```sql
+SELECT
+	*
+INTO
+	netflixStagingCopy
+FROM
+	netflixStaging
+
+ SELECT  
+	showid, type, title, dateadded, releaseyear, rating, duration, description
+INTO 
+	netflixStaging_temp
+FROM 
+	netflixStaging
+DROP TABLE netflixStaging
+EXEC sp_rename 'netflixStaging_temp', 'netflixStaging'
+```
+
+Method 2: Another way we can get rid of the unwanted columns is to delete them or drop the columns by altering the table.
+ ```sql
+ ALTER TABLE netflixStaging DROP Column director
+ ALTER TABLE netflixStaging DROP Column country
+ ALTER TABLE netflixStaging DROP Column cast
+ ALTER TABLE netflixStaging DROP Column listed_in
+```
+**Result:** We now have a completely normalized table, netflixStaging. We can get any content we want (analyze) about the directors, cast, listedin, and country from the tables netflixStaging_Director, netflixStaging_Country, netflixStaging_ListedIn, netflixStaging_Cast, and netflixStaging using relational operators like join and inner join.
+
 
 ## Business Problems and Solutions
 
