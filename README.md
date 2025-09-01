@@ -1,3 +1,5 @@
+## End-to-End Data Analysis Project For Netflix Movies/TV Shows Dataset Using SQL
+
 ![Netflix Logo](https://github.com/themofaithful/NetflixDataAnalysisSQL/blob/main/NetflixLogo.png)
  
 ## Overview
@@ -12,9 +14,8 @@ This project requires a thorough examination of Netflix's movie and TV show data
 - Analyse and categorise information using precise criteria and keywords.
  
 ## Dataset
- 
-Though the dataset for this project is sourced from the Kaggle dataset, it's uploaded here: [Netflix_titles.csv](https://greaterheight.tech/NetflixContents.csv)
- 
+The dataset for this project is sourced from the Kaggle dataset; however, you can send an email to Themofaithful@gmail.com to request it.
+
 ## Processes and Stages of Dataset Importation
 
 Step 1: Download the dataset from: [Netflix Dataset](https://greaterheight.tech/NetflixContent.csv)
